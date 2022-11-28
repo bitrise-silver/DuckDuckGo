@@ -1,0 +1,84 @@
+---
+format_version: '11'
+default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+project_type: android
+
+pipelines:
+  benchmark:
+    stages:
+    - benchmark: {}
+
+stages:
+  benchmark:
+    workflows:
+    {{ range $j, $v := (ds "values").variations -}}
+    {{- range $j, $java := $v.java_version -}}
+    {{- range $k, $machine := $v.machine_types -}}
+    {{- range $l, $stack := $v.stacks -}}
+    {{- $name := (print "java-" $java "-" $machine "-" $stack) -}}
+    - {{$name}}: {}
+    {{ end -}}
+    {{ end -}}
+    {{ end -}}
+    {{ end }}
+workflows:
+  _build:
+    steps:
+    - activate-ssh-key@4: {}
+    - git-clone@6: {}
+    - install-missing-android-tools@3:
+        inputs:
+        - gradlew_path: "$PROJECT_LOCATION/gradlew"
+    - gradle-runner@2:
+        inputs:
+        - gradle_task: lint
+        - gradle_file: ''
+        - gradlew_path: "$BITRISE_SOURCE_DIR/gradlew"
+    - gradle-runner@2:
+        inputs:
+        - gradle_task: bundleRelease
+        - gradle_file: ''
+        - gradlew_path: "$BITRISE_SOURCE_DIR/gradlew"
+  _java-11:
+    steps:
+    - set-java-version@1:
+        inputs:
+        - set_java_version: '11'
+  _java-17:
+    steps:
+    - set-java-version@1:
+        inputs:
+        - set_java_version: '17'
+  {{ range $j, $v := (ds "values").variations -}}
+  {{- range $j, $java := $v.java_version -}}
+  {{- range $k, $machine := $v.machine_types -}}
+  {{- range $l, $stack := $v.stacks -}}
+  {{- $name := (print "java-" $java "-" $machine "-" $stack) -}}
+  {{$name}}:
+    before_run:
+    - _java-{{$java}}
+    after_run:
+    - _build
+    meta:
+      bitrise.io:
+        stack: {{$stack}}
+        machine_type_id: {{$machine}}
+  {{ end -}}
+  {{ end -}}
+  {{ end -}}
+  {{ end }}
+meta:
+  bitrise.io:
+    stack: linux-docker-android-20.04
+    machine_type_id: elite-xl
+app:
+  envs:
+  - opts:
+      is_expand: false
+    PROJECT_LOCATION: "."
+  - opts:
+      is_expand: false
+    MODULE: app
+  - opts:
+      is_expand: false
+    VARIANT: Debug

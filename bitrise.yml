@@ -1,0 +1,31 @@
+---
+format_version: '11'
+default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+project_type: android
+workflows:
+  trigger:
+    steps:
+    - activate-ssh-key@4: {}
+    - git-clone@6:
+        inputs:
+        - update_submodules: 'no'
+    - git::https://github.com/bitrise-silver/steps-dynamic-workflow.git@main:
+        inputs:
+        - template_file: benchmark/bitrise.tmpl
+        - value_file: benchmark/values.yml
+        - pipeline_id: benchmark
+meta:
+  bitrise.io:
+    stack: linux-docker-android-20.04
+    machine_type_id: elite-xl
+app:
+  envs:
+  - opts:
+      is_expand: false
+    PROJECT_LOCATION: "."
+  - opts:
+      is_expand: false
+    MODULE: app
+  - opts:
+      is_expand: false
+    VARIANT: Debug

@@ -1,0 +1,22 @@
+# https://support.bitrise.io/hc/en-us/articles/4403262832785-Defining-the-machine-type-in-bitrise-yml
+variations:
+- linux:
+  os: linux
+  java_version:
+  - 11
+  - 17
+  machine_types:
+  - elite-xl
+  stacks:
+  - linux-docker-android-20.04
+- osx:
+  os: osx
+  java_version:
+  - 11
+  - 17
+  machine_types:
+  - g2.8core
+  - g2.12core
+  - g2-m1.8core
+  stacks:
+  - osx-xcode-14.1.x
