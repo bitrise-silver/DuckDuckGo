@@ -19,4 +19,4 @@ variations:
   - g2.12core
   - g2-m1.8core
   stacks:
-  - osx-xcode-14.1.x
+  - osx-xcode-14.3.x-ventura
